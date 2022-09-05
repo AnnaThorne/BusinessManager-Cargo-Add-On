@@ -12,10 +12,11 @@
 
 util.require_natives(1660775568)
 local pid = players.user()
-local localVer = 1.5
+local localVer = 1.51
 local mb_version = "0.3.2"
 local loop_speed = 1.3
 local warehouse_capacity = 111
+local luaname = "MusinessBanagerCargo Add-On v"..localVer.."\n"
 local main_menu = menu.my_root()
 
 -- Update
@@ -24,17 +25,17 @@ async_http.init("raw.githubusercontent.com", "/akatozi/BusinessManager-Cargo-Add
     currentVer = tonumber(output)
     response = true
     if localVer < currentVer then
-        util.toast("New BusinessManager Cargo Add-On version is available !")
+        util.toast(luaname.."New BusinessManager Cargo Add-On version is available !")
         menu.action(menu.my_root(), "Update script", {}, "", function()
             async_http.init('raw.githubusercontent.com','/akatozi/BusinessManager-Cargo-Add-On/main/MusinessBanager Cargo Add-On.lua',function(a)
                 local err = select(2,load(a))
                 if err then
-                    util.toast("Script failed to download. Please try again later. If this continues to happen then manually update via github.")
+                    util.toast(luaname.."Script failed to download. Please try again later. If this continues to happen then manually update via github.")
                 return end
                 local f = io.open(filesystem.scripts_dir()..SCRIPT_RELPATH, "wb")
                 f:write(a)
                 f:close()
-                util.toast("Successfully updated !")
+                util.toast(luaname.."Successfully updated !")
                 util.stop_script()
             end)
             async_http.dispatch()
@@ -56,6 +57,8 @@ menu.action(settings_menu,'Optimal Settings', {""}, 'Improve FPS and stability o
 	menu.trigger_commands("potatomode on")
 	menu.trigger_commands("weather clear")
 	menu.trigger_commands("nosky on")
+    menu.trigger_commands("noidlekick on")
+    menu.trigger_commands("noidlecam on")
 	
 	-- MusinessBanager
     menu.trigger_commands("monitorcargo on")
@@ -64,7 +67,7 @@ menu.action(settings_menu,'Optimal Settings', {""}, 'Improve FPS and stability o
     menu.trigger_commands("nosellcdcargo on")
     menu.trigger_commands("autocompletespecialbuy on")
     menu.trigger_commands("autocompletespecialsell on")
-	util.toast("Make sure to check two last toggle manually in Special Cargo !")
+	util.toast(luaname.."Make sure to check two last toggle manually in Special Cargo !")
 end)
 
 menu.action(settings_menu,'Safe mode', {""}, 'Reduces even more risks.\nNOTE: Will make you go in solo session with spoofed session so you cant be crashed or checked by R* Admins.', function()
@@ -78,8 +81,9 @@ menu.action(settings_menu,'Default settings', {""}, 'Remove optimised settings',
 end)
 
 menu.divider(settings_menu, "Other Stuff")
-moneyMultiplier = menu.toggle(settings_menu, 'Remove XP Gain', {""}, 'Dont earn anymore xp with the cargo method.', function()
+moneyMultiplier = menu.toggle_loop(settings_menu, 'Remove RP Gain', {""}, 'Dont earn anymore RP with cargo sells.', function()
 	if menu.get_value(moneyMultiplier) then
+        util.draw_debug_text("No RP Mode")
 		memory.write_float(memory.script_global(262145 + 1), 0)
 	else
 		memory.write_float(memory.script_global(262145 + 1), 1)
@@ -93,7 +97,7 @@ menu.action(settings_menu,'Restart the game', {""}, 'Use it if you are stuck in 
 	menu.trigger_commands("stopluamusinessbanagercargoaddon")
 end)
 
-util.toast("Addon Version "..localVer.."\nMusiness Banager Version "..mb_version.."\n\nIMPORTANT! Make sure to check everything in MusinessBanager > Special Cargo")
+util.toast(luaname.."MusinessBanager v"..mb_version.."\n\nIMPORTANT! Make sure to check everything in MusinessBanager > Special Cargo")
 
 menu.divider(main_menu, "Automatic")
 menu.list_select(main_menu, 'Warehouse Size ', {""}, "Chose the size of your warehouse.", {"Large","Medium","Small"}, 1, function(warehouse_type)
@@ -109,7 +113,7 @@ end)
 menu.list_select(main_menu, 'Loop Speed ', {""}, "Chose speed of one loop.\nIf you get stuck in the warehouse menu, increase value.", {"Nasa","Very Fast","Fast","Normal","Slow","Very Slow","Extremely Slow","Snail","Shitty Pc"}, 4, function(sell_value)
 	loop_speed = 1 + 0.1*(sell_value-1)
 	if sell_value < 4 then
-		util.toast("Faster loop speed can get you stuck in the warehouse menu !\nDo it at your own risk.")
+		util.toast(luaname.."Faster loop speed can get you stuck in the warehouse menu !\nDo it at your own risk.")
 	end
 end)
 
@@ -134,12 +138,20 @@ end)
 
 menu.divider(main_menu, "Manually")
 menu.action(main_menu,'Resupply', {""}, 'Resupply special cargo crates.', function()
-	refill_crates()
+	if menu.get_value(afkMoneyCargo) then
+        util.toast(luaname.."You need to turn off AFK Money !")
+    else
+	    refill_crates()
+    end
 end)
 
 menu.action(main_menu,'Sell crate', {""}, 'Can be useful if you want to start afk money but you have full warehouse.', function()
-	sell_crates()
-	sell_crates()
+    if menu.get_value(afkMoneyCargo) then
+        util.toast(luaname.."You need to turn off AFK Money !")
+    else
+	    sell_crates()
+	    sell_crates()
+    end
 end)
 
 -- Functions
@@ -154,7 +166,7 @@ function refill_crates()
     local entry_coo = players.get_position(pid)
     local res_made = 0
 	while res_made == 0 do
-        util.yield(100)
+        util.yield(20)
         local p_coo = players.get_position(pid)
         pos_difference = math.ceil(MISC.GET_DISTANCE_BETWEEN_COORDS(p_coo.x, p_coo.y, p_coo.z, 993.774, -3099.921, -38.99581))
         if pos_difference <= 5 then
@@ -189,13 +201,15 @@ function refill_crates()
             res_made = 1
         end
     end
-    while res_made == 1 do
-        util.yield(100)
+    while res_made == 1 or res_made == 2 do
+        util.yield(20)
         local p_coo = players.get_position(pid)
         pos_difference = math.ceil(MISC.GET_DISTANCE_BETWEEN_COORDS(p_coo.x, p_coo.y, p_coo.z, entry_coo.x, entry_coo.y, entry_coo.z))
-        if pos_difference <= 20 then
-            util.yield(500*loop_speed)
+        if pos_difference <= 20 and res_made == 1 then
+            res_made = 2
+        elseif pos_difference > 2 and res_made == 2 then
             tpfps()
+            util.yield(100)
             res_made = 3
         end
     end
@@ -222,7 +236,7 @@ function tpexit()
 end
 
 function tpfps()
-	TELEPORT(-6185.2427, 8590.036, 2702.5552)
+	TELEPORT(457.25537, 5571.8975, 781.1837)
 end
 
 function TELEPORT(X, Y, Z)
@@ -246,6 +260,8 @@ function default_settings()
 	menu.trigger_commands("potatomode off")
 	menu.trigger_commands("nosky off")
 	menu.trigger_commands("spoofsession off")
+    menu.trigger_commands("noidlekick off")
+    menu.trigger_commands("noidlecam off")
 	memory.write_float(memory.script_global(262145 + 1), 1)
 end
 
