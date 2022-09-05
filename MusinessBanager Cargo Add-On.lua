@@ -5,17 +5,48 @@
 -- luigistyle: AHK Loop
 -- Aiko: Tester
 -- teleport function isn't mine, idk who made it, if you know it send me mp akatozi#0691
+-- Jink : his crazy update method is awesome
 
+---------------------------------------------------------------------
+-- Update
 
 util.require_natives(1660775568)
 local afkMoneyCargo
-local lua_version = "1.3.9"
+local localVer = 1.4
 local mb_version = "0.3.2"
 local speed_sell = 1.04
 local speed_res = 2.0
 local warehouse_capacity = 111
+local response = false
+local main_menu = menu.my_root()
 
-util.toast("Addon Version "..lua_version.."\nMusiness Banager Version "..mb_version.."\n\nIMPORTANT! Make sure to check everything in MusinessBanager > Special Cargo")
+async_http.init("raw.githubusercontent.com", "/akatozi/BusinessManager-Cargo-Add-On/blob/main/Version", function(output)
+    currentVer = tonumber(output)
+    response = true
+    if localVer ~= currentVer then
+        util.toast("New BusinessManager Cargo Add-On version is available, update the lua to get the newest version.")
+        menu.action(menu.my_root(), "Install Update", {}, "", function()
+            async_http.init('raw.githubusercontent.com','/akatozi/BusinessManager-Cargo-Add-On/blob/main/MusinessBanager Cargo Add-On.lua',function(a)
+                local err = select(2,load(a))
+                if err then
+                    util.toast("Script failed to download. Please try again later. If this continues to happen then manually update via github.")
+                return end
+                local f = io.open(filesystem.scripts_dir()..SCRIPT_RELPATH, "wb")
+                f:write(a)
+                f:close()
+                util.toast("Successfully updated !")
+                util.stop_script()
+            end)
+            async_http.dispatch()
+        end)
+    end
+end, function() response = true end)
+async_http.dispatch()
+repeat 
+    util.yield()
+until response
+
+util.toast("Addon Version "..localVer.."\nMusiness Banager Version "..mb_version.."\n\nIMPORTANT! Make sure to check everything in MusinessBanager > Special Cargo")
 
 ---------------------------------------------------------------------
 -- Settings
@@ -59,7 +90,6 @@ menu.action(settings_menu,'Restart the game', {""}, 'Use it if you are stuck in 
 	menu.trigger_commands("forcequittosp")
 end)
 
-local main_menu = menu.my_root()
 menu.list_select(main_menu, 'Warehouse Size ', {""}, "Chose the size of your warehouse.", {"Large","Medium","Small"}, 1, function(warehouse_type)
 	if warehouse_type == 3 then
 		warehouse_capacity = 16
