@@ -12,7 +12,8 @@
 
 util.require_natives(1660775568)
 local afkMoneyCargo
-local localVer = 1.4
+local moneyMultiplier
+local localVer = 1.41
 local mb_version = "0.3.2"
 local speed_sell = 1.04
 local speed_res = 2.0
@@ -20,13 +21,13 @@ local warehouse_capacity = 111
 local response = false
 local main_menu = menu.my_root()
 
-async_http.init("raw.githubusercontent.com", "/akatozi/BusinessManager-Cargo-Add-On/blob/main/Version", function(output)
+async_http.init("raw.githubusercontent.com", "/akatozi/BusinessManager-Cargo-Add-On/main/Version", function(output)
     currentVer = tonumber(output)
     response = true
     if localVer ~= currentVer then
-        util.toast("New BusinessManager Cargo Add-On version is available, update the lua to get the newest version.")
-        menu.action(menu.my_root(), "Install Update", {}, "", function()
-            async_http.init('raw.githubusercontent.com','/akatozi/BusinessManager-Cargo-Add-On/blob/main/MusinessBanager Cargo Add-On.lua',function(a)
+        util.toast("New BusinessManager Cargo Add-On version is available !")
+        menu.action(menu.my_root(), "Update script", {}, "", function()
+            async_http.init('raw.githubusercontent.com','/akatozi/BusinessManager-Cargo-Add-On/main/MusinessBanager Cargo Add-On.lua',function(a)
                 local err = select(2,load(a))
                 if err then
                     util.toast("Script failed to download. Please try again later. If this continues to happen then manually update via github.")
@@ -83,9 +84,18 @@ menu.action(settings_menu,'Default settings', {""}, 'Remove optimised settings',
 	menu.trigger_commands("potatomode off")
 	menu.trigger_commands("nosky off")
 	menu.trigger_commands("spoofsession off")
+	memory.write_float(memory.script_global(262145 + 1), 1)
 end)
 
-menu.divider(settings_menu, "Emergency")
+menu.divider(settings_menu, "Other Stuff")
+moneyMultiplier = menu.toggle(settings_menu, 'Remove XP Gain', {""}, 'Dont earn anymore xp with the cargo method.', function()
+	if menu.get_value(moneyMultiplier) then
+		memory.write_float(memory.script_global(262145 + 1), 0)
+	else
+		memory.write_float(memory.script_global(262145 + 1), 1)
+	end
+end)
+
 menu.action(settings_menu,'Restart the game', {""}, 'Use it if you are stuck in the warehouse screen.', function()
 	menu.trigger_commands("forcequittosp")
 end)
@@ -216,5 +226,9 @@ function format_int(number) -- Credits to Bart Kiers from stackoverflow
   int = int:reverse():gsub("(%d%d%d)", "%1,")
   return minus .. int:reverse():gsub("^,", "") .. fraction
 end
+
+function SET_FLOAT_GLOBAL(Global, Value)
+            memory.write_float(memory.script_global(Global), Value)
+        end
 
 util.keep_running()
