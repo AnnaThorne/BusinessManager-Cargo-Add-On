@@ -13,9 +13,9 @@
 util.require_natives(1660775568)
 local afkMoneyCargo
 local moneyMultiplier
-local localVer = 1.41
+local localVer = 1.42
 local mb_version = "0.3.2"
-local speed_sell = 1.04
+local speed_sell = 1.1
 local speed_res = 2.0
 local warehouse_capacity = 111
 local main_menu = menu.my_root()
@@ -111,7 +111,7 @@ end)
 
 menu.divider(main_menu, "Automatic")
 menu.slider(main_menu, 'Sell Speed', {""}, "Lower values means faster loop.\nIf you get stuck in the warehouse menu, increase value.", 0, 5, 2, 1, function(sell_value)
-	speed_sell = 1 + 0.02*sell_value
+	speed_sell = 1 + 0.1*sell_value
 	if sell_value <= 1 then
 		util.toast("Low sell speed can get you stuck in the warehouse menu !\nDo it at your own risk.")
 	end
@@ -154,7 +154,7 @@ end)
 -- Functions
 function sell_crates()
 	menu.trigger_commands("sellacrate")
-	util.yield(2000*speed_sell)
+	util.yield(1700*speed_sell)
 end
 
 function refill_crates()
