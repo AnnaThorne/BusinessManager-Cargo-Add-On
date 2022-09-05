@@ -14,3 +14,4 @@ Features
 Changelog
 - Auto update
 - Remove xp gain
+- Sell can now be done in 1.7 sec
