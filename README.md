@@ -10,3 +10,7 @@ You can adjusts speed if you have bad internet or if you want more productivity.
 Features
 - Change Loop Speed (Useful if bad connection/pc)
 - AFK Money (Auto resupply and sell)
+
+Changelog
+- Auto update
+- Remove xp gain
