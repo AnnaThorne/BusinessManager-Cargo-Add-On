@@ -1,14 +1,14 @@
--- Made by akatozi
+--[[ 
 
--- Credits
--- Ren, ICYPhoenix: MusinessBanager 
--- luigistyle: AHK Loop
--- Aiko: Tester
--- teleport function isn't mine, idk who made it, if you know it send me mp akatozi#0691
--- Jink : his crazy update method is awesome
+	Made by akatozi#0691
+	Credits
+	Ren, ICYPhoenix: MusinessBanager 
+	luigistyle: AHK Loop
+	Aiko: Tester
+	IceDoomfist: TP Function
+	Jink: Auto-Update
 
----------------------------------------------------------------------
--- Update
+--]]
 
 util.require_natives(1660775568)
 local afkMoneyCargo
@@ -18,9 +18,10 @@ local mb_version = "0.3.2"
 local speed_sell = 1.04
 local speed_res = 2.0
 local warehouse_capacity = 111
-local response = false
 local main_menu = menu.my_root()
 
+-- Update
+local response = false
 async_http.init("raw.githubusercontent.com", "/akatozi/BusinessManager-Cargo-Add-On/main/Version", function(output)
     currentVer = tonumber(output)
     response = true
@@ -49,9 +50,7 @@ until response
 
 util.toast("Addon Version "..localVer.."\nMusiness Banager Version "..mb_version.."\n\nIMPORTANT! Make sure to check everything in MusinessBanager > Special Cargo")
 
----------------------------------------------------------------------
--- Settings
-
+-- Settings list
 settings_menu = menu.list(menu.my_root(), "(Recommended) Settings", {}, "", function(); end)
 menu.divider(settings_menu, "Apply settings")
 menu.action(settings_menu,'Optimal Settings', {""}, 'Improve FPS and stability of the lua.\nNOTE: Reducing resolution and play on windowed mode also helps a lot.', function()
@@ -152,9 +151,7 @@ menu.action(main_menu,'Sell a crate', {""}, 'Can be useful if you want to start 
 	sell_crates()
 end)
 
----------------------------------------------------------------------
 -- Functions
-
 function sell_crates()
 	menu.trigger_commands("sellacrate")
 	util.yield(2000*speed_sell)
