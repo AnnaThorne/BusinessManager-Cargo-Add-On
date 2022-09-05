@@ -19,6 +19,7 @@ How to use it
   - Click AFKMoney and enjoy your money !
 
 How to fix issues
+- IMPORTANT! Before dm me "it doesn't work" please try to adjust settings, dont share your screen on discord and reduce your in-game resolution.
 - If you often get stuck in the warehouse menu, increase the Sell Time, your connection or pc is to laggy.
 PS : there is an option to restart your game faster than usual in Settings.
 - If you don't get auto resupply :
