@@ -11,10 +11,10 @@
 --]]
 
 util.require_natives(1660775568)
-local localVer = 1.44
+local pid = players.user()
+local localVer = 1.5
 local mb_version = "0.3.2"
-local speed_sell = 1.2
-local speed_res = 2.0
+local loop_speed = 1.3
 local warehouse_capacity = 111
 local main_menu = menu.my_root()
 
@@ -46,15 +46,13 @@ repeat
     util.yield()
 until response
 
-util.toast("Addon Version "..localVer.."\nMusiness Banager Version "..mb_version.."\n\nIMPORTANT! Make sure to check everything in MusinessBanager > Special Cargo")
-
 -- Settings list
-settings_menu = menu.list(menu.my_root(), "(Recommended) Settings", {}, "", function(); end)
+menu.hyperlink(main_menu, "Check Github : Tutorial", "https://github.com/akatozi/BusinessManager-Cargo-Add-On")
+settings_menu = menu.list(menu.my_root(), "Settings", {}, "", function(); end)
 menu.divider(settings_menu, "Apply settings")
 menu.action(settings_menu,'Optimal Settings', {""}, 'Improve FPS and stability of the lua.\nNOTE: Reducing resolution and play on windowed mode also helps a lot.', function()
 	-- Settings
 	menu.trigger_commands("anticrashcamera on") 
-	menu.trigger_commands("nophonespam on")
 	menu.trigger_commands("potatomode on")
 	menu.trigger_commands("weather clear")
 	menu.trigger_commands("nosky on")
@@ -90,11 +88,14 @@ end)
 
 menu.action(settings_menu,'Restart the game', {""}, 'Use it if you are stuck in the warehouse screen.', function()
 	default_settings()
+	menu.trigger_commands("stopluamusinessbanager")
 	menu.trigger_commands("forcequittosp")
+	menu.trigger_commands("stopluamusinessbanagercargoaddon")
 end)
 
-menu.hyperlink(settings_menu, "Check Github : Tutorial", "https://github.com/akatozi/BusinessManager-Cargo-Add-On")
+util.toast("Addon Version "..localVer.."\nMusiness Banager Version "..mb_version.."\n\nIMPORTANT! Make sure to check everything in MusinessBanager > Special Cargo")
 
+menu.divider(main_menu, "Automatic")
 menu.list_select(main_menu, 'Warehouse Size ', {""}, "Chose the size of your warehouse.", {"Large","Medium","Small"}, 1, function(warehouse_type)
 	if warehouse_type == 3 then
 		warehouse_capacity = 16
@@ -105,23 +106,16 @@ menu.list_select(main_menu, 'Warehouse Size ', {""}, "Chose the size of your war
 	end
 end)
 
-menu.divider(main_menu, "Automatic")
-menu.list_select(main_menu, 'Sell Time ', {""}, "Chose speed of one loop.\nIf you get stuck in the warehouse menu, increase value.", {"1.7 sec","1.87 sec","2.04 sec","2.21 sec","2.38 sec","2.55"}, 3, function(sell_value)
-	speed_sell = 1 + 0.1*(sell_value-1)
-	if sell_value <= 2 then
-		util.toast("Low sell speed can get you stuck in the warehouse menu !\nDo it at your own risk.")
-	end
-end)
-
-menu.list_select(main_menu, 'Resupply Time ', {""}, "Chose speed of one loop.\nIf you have issues with ressuply not working, increase value.", {"~8 sec","~9.6 sec","~11.2 sec","~12.8 sec","~14.4 sec"}, 2, function(res_value)
-	speed_res = 1 + 0.1*(res_value-1)
-	if res_value <= 3 then
-		util.toast("Low resupply speed can make you miss the resupply !\nDo it at your own risk.")
+menu.list_select(main_menu, 'Loop Speed ', {""}, "Chose speed of one loop.\nIf you get stuck in the warehouse menu, increase value.", {"Nasa","Very Fast","Fast","Normal","Slow","Very Slow","Extremely Slow","Snail","Shitty Pc"}, 4, function(sell_value)
+	loop_speed = 1 + 0.1*(sell_value-1)
+	if sell_value < 4 then
+		util.toast("Faster loop speed can get you stuck in the warehouse menu !\nDo it at your own risk.")
 	end
 end)
 
 afkMoneyCargo = menu.toggle_loop(main_menu, 'AFK Money', {""}, 'Auto ressuply and sell crates.', function()
 	if menu.get_value(afkMoneyCargo) then
+        menu.trigger_commands("nophonespam on")
 		local i = 0
 		refill_crates()
 		while i <= warehouse_capacity and menu.get_value(afkMoneyCargo) do
@@ -132,7 +126,7 @@ afkMoneyCargo = menu.toggle_loop(main_menu, 'AFK Money', {""}, 'Auto ressuply an
 end)
 
 menu.toggle_loop(main_menu, 'Money Estimation', {""}, 'Show estimated amount of money you will earn an hour.', function()
-	estimation_value = warehouse_capacity*(3600/((warehouse_capacity*1.7+2)*speed_sell + 8*speed_res))*10000000
+	estimation_value = warehouse_capacity*(3600/((warehouse_capacity*1.7+2)*loop_speed + 7+4*loop_speed))*10000000
 	estimation_value = math.floor(estimation_value+0.5)
 	estimation_value = format_int(estimation_value)
 	util.draw_debug_text("Money Estimation: "..estimation_value.."$")
@@ -151,41 +145,60 @@ end)
 -- Functions
 function sell_crates()
 	menu.trigger_commands("sellacrate")
-	util.yield(1700*speed_sell)
+	util.yield(1700*loop_speed)
 end
 
 function refill_crates()
 	menu.trigger_commands("tptocargowarehouse")
-	util.yield(3700+speed_res)
-	tp1()
-	util.yield(150*speed_res)
-	PAD._SET_CONTROL_NORMAL(0, 51, 1)
-	util.yield(20*speed_res)
-	PAD._SET_CONTROL_NORMAL(0, 51, 1)
-	util.yield(20*speed_res)
-	tp2()
-	util.yield(150*speed_res)
-	PAD._SET_CONTROL_NORMAL(0, 51, 1)
-	util.yield(20*speed_res)
-	PAD._SET_CONTROL_NORMAL(0, 51, 1)
-	util.yield(20*speed_res)
-	tp3()
-	util.yield(150*speed_res)
-	PAD._SET_CONTROL_NORMAL(0, 51, 1)
-	util.yield(20*speed_res)
-	PAD._SET_CONTROL_NORMAL(0, 51, 1)
-	util.yield(20*speed_res)
-	PAD._SET_CONTROL_NORMAL(0, 201, 1)
-	util.yield(20*speed_res)
-	PAD._SET_CONTROL_NORMAL(0, 201, 1)
-	util.yield(20*speed_res)
-	PAD._SET_CONTROL_NORMAL(0, 201, 1)
-	util.yield(20*speed_res)
-	tpexit()
-	util.yield(200*speed_res)
-	PAD._SET_CONTROL_NORMAL(0, 201, 1)
-	util.yield(4000*speed_res)
-	tpchilliad()
+    util.yield(100)
+    local entry_coo = players.get_position(pid)
+    local res_made = 0
+	while res_made == 0 do
+        util.yield(100)
+        local p_coo = players.get_position(pid)
+        pos_difference = math.ceil(MISC.GET_DISTANCE_BETWEEN_COORDS(p_coo.x, p_coo.y, p_coo.z, 993.774, -3099.921, -38.99581))
+        if pos_difference <= 5 then
+            util.yield(500*loop_speed)
+            tp1()
+            util.yield(150)
+            PAD._SET_CONTROL_NORMAL(0, 51, 1)
+            util.yield(20)
+            PAD._SET_CONTROL_NORMAL(0, 51, 1)
+            util.yield(20)
+            tp2()
+            util.yield(150)
+            PAD._SET_CONTROL_NORMAL(0, 51, 1)
+            util.yield(20)
+            PAD._SET_CONTROL_NORMAL(0, 51, 1)
+            util.yield(20)
+            tp3()
+            util.yield(150)
+            PAD._SET_CONTROL_NORMAL(0, 51, 1)
+            util.yield(20)
+            PAD._SET_CONTROL_NORMAL(0, 51, 1)
+            util.yield(20)
+            PAD._SET_CONTROL_NORMAL(0, 201, 1)
+            util.yield(20)
+            PAD._SET_CONTROL_NORMAL(0, 201, 1)
+            util.yield(20)
+            PAD._SET_CONTROL_NORMAL(0, 201, 1)
+            util.yield(20)
+            tpexit()
+            util.yield(200)
+            PAD._SET_CONTROL_NORMAL(0, 201, 1)
+            res_made = 1
+        end
+    end
+    while res_made == 1 do
+        util.yield(100)
+        local p_coo = players.get_position(pid)
+        pos_difference = math.ceil(MISC.GET_DISTANCE_BETWEEN_COORDS(p_coo.x, p_coo.y, p_coo.z, entry_coo.x, entry_coo.y, entry_coo.z))
+        if pos_difference <= 20 then
+            util.yield(500*loop_speed)
+            tpfps()
+            res_made = 3
+        end
+    end
 end
 
 function tp1()
@@ -208,8 +221,8 @@ function tpexit()
 	SET_HEADING(90)
 end
 
-function tpchilliad()
-	TELEPORT(501.9981, 5605.192, 797.90985)
+function tpfps()
+	TELEPORT(-6185.2427, 8590.036, 2702.5552)
 end
 
 function TELEPORT(X, Y, Z)
