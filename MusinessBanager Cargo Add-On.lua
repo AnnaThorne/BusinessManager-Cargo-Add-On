@@ -11,11 +11,9 @@
 --]]
 
 util.require_natives(1660775568)
-local afkMoneyCargo
-local moneyMultiplier
-local localVer = 1.42
+local localVer = 1.43
 local mb_version = "0.3.2"
-local speed_sell = 1.1
+local speed_sell = 1.2
 local speed_res = 2.0
 local warehouse_capacity = 111
 local main_menu = menu.my_root()
@@ -136,7 +134,7 @@ afkMoneyCargo = menu.toggle_loop(main_menu, 'AFK Money', {""}, 'Auto ressuply an
 end)
 
 menu.toggle_loop(main_menu, 'Money Estimation', {""}, 'Show estimated amount of money you will earn an hour.', function()
-	estimation_value = warehouse_capacity*(3600/((warehouse_capacity*2+2)*speed_sell + 6*speed_res))*10000000
+	estimation_value = warehouse_capacity*(3600/((warehouse_capacity*1.7+2)*speed_sell + 8*speed_res))*10000000
 	estimation_value = math.floor(estimation_value+0.5)
 	estimation_value = format_int(estimation_value)
 	util.draw_debug_text("Money Estimation: "..estimation_value.."$")
@@ -147,7 +145,8 @@ menu.action(main_menu,'Resupply', {""}, 'Resupply special cargo crates.', functi
 	refill_crates()
 end)
 
-menu.action(main_menu,'Sell a crate', {""}, 'Can be useful if you want to start afk money but you have full warehouse.', function()
+menu.action(main_menu,'Sell crate', {""}, 'Can be useful if you want to start afk money but you have full warehouse.', function()
+	sell_crates()
 	sell_crates()
 end)
 
@@ -159,25 +158,31 @@ end
 
 function refill_crates()
 	menu.trigger_commands("tptocargowarehouse")
-	util.yield(3500*speed_res)
+	util.yield(3700+*speed_res)
 	tp1()
-	util.yield(100*speed_res)
+	util.yield(150*speed_res)
 	PAD._SET_CONTROL_NORMAL(0, 51, 1)
-	util.yield(100*speed_res)
+	util.yield(20*speed_res)
+	PAD._SET_CONTROL_NORMAL(0, 51, 1)
+	util.yield(20*speed_res)
 	tp2()
-	util.yield(100*speed_res)
+	util.yield(150*speed_res)
 	PAD._SET_CONTROL_NORMAL(0, 51, 1)
-	util.yield(100*speed_res)
+	util.yield(20*speed_res)
+	PAD._SET_CONTROL_NORMAL(0, 51, 1)
+	util.yield(20*speed_res)
 	tp3()
-	util.yield(500*speed_res)
+	util.yield(150*speed_res)
 	PAD._SET_CONTROL_NORMAL(0, 51, 1)
-	util.yield(100*speed_res)
+	util.yield(20*speed_res)
+	PAD._SET_CONTROL_NORMAL(0, 51, 1)
+	util.yield(20*speed_res)
 	PAD._SET_CONTROL_NORMAL(0, 201, 1)
-	util.yield(50*speed_res)
+	util.yield(20*speed_res)
 	PAD._SET_CONTROL_NORMAL(0, 201, 1)
-	util.yield(50*speed_res)
+	util.yield(20*speed_res)
 	PAD._SET_CONTROL_NORMAL(0, 201, 1)
-	util.yield(50*speed_res)
+	util.yield(20*speed_res)
 	tpexit()
 	util.yield(200*speed_res)
 	PAD._SET_CONTROL_NORMAL(0, 201, 1)
