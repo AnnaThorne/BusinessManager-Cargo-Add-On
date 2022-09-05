@@ -12,7 +12,7 @@
 
 util.require_natives(1660775568)
 local pid = players.user()
-local localVer = 1.51
+local localVer = 1.52
 local mb_version = "0.3.2"
 local loop_speed = 1.3
 local warehouse_capacity = 111
@@ -110,7 +110,7 @@ menu.list_select(main_menu, 'Warehouse Size ', {""}, "Chose the size of your war
 	end
 end)
 
-menu.list_select(main_menu, 'Loop Speed ', {""}, "Chose speed of one loop.\nIf you get stuck in the warehouse menu, increase value.", {"Nasa","Very Fast","Fast","Normal","Slow","Very Slow","Extremely Slow","Snail","Shitty Pc"}, 4, function(sell_value)
+menu.list_select(main_menu, 'Loop Speed ', {""}, "Chose speed of one loop.\nIf you get stuck in the warehouse menu, increase value.", {"Nasa (Not Recommended)","Very Fast","Fast","Normal","Slow","Very Slow","Extremely Slow","Snail","Shitty Pc"}, 4, function(sell_value)
 	loop_speed = 1 + 0.1*(sell_value-1)
 	if sell_value < 4 then
 		util.toast(luaname.."Faster loop speed can get you stuck in the warehouse menu !\nDo it at your own risk.")
@@ -166,43 +166,43 @@ function refill_crates()
     local entry_coo = players.get_position(pid)
     local res_made = 0
 	while res_made == 0 do
-        util.yield(20)
+        util.yield(100)
         local p_coo = players.get_position(pid)
         pos_difference = math.ceil(MISC.GET_DISTANCE_BETWEEN_COORDS(p_coo.x, p_coo.y, p_coo.z, 993.774, -3099.921, -38.99581))
         if pos_difference <= 5 then
             util.yield(500*loop_speed)
             tp1()
-            util.yield(150)
+            util.yield(150*loop_speed)
             PAD._SET_CONTROL_NORMAL(0, 51, 1)
-            util.yield(20)
+            util.yield(20*loop_speed)
             PAD._SET_CONTROL_NORMAL(0, 51, 1)
-            util.yield(20)
+            util.yield(20*loop_speed)
             tp2()
-            util.yield(150)
+            util.yield(150*loop_speed)
             PAD._SET_CONTROL_NORMAL(0, 51, 1)
-            util.yield(20)
+            util.yield(20*loop_speed)
             PAD._SET_CONTROL_NORMAL(0, 51, 1)
-            util.yield(20)
+            util.yield(20*loop_speed)
             tp3()
-            util.yield(150)
+            util.yield(150*loop_speed)
             PAD._SET_CONTROL_NORMAL(0, 51, 1)
-            util.yield(20)
+            util.yield(20*loop_speed)
             PAD._SET_CONTROL_NORMAL(0, 51, 1)
-            util.yield(20)
+            util.yield(20*loop_speed)
             PAD._SET_CONTROL_NORMAL(0, 201, 1)
-            util.yield(20)
+            util.yield(20*loop_speed)
             PAD._SET_CONTROL_NORMAL(0, 201, 1)
-            util.yield(20)
+            util.yield(20*loop_speed)
             PAD._SET_CONTROL_NORMAL(0, 201, 1)
-            util.yield(20)
+            util.yield(20*loop_speed)
             tpexit()
-            util.yield(200)
+            util.yield(200*loop_speed)
             PAD._SET_CONTROL_NORMAL(0, 201, 1)
             res_made = 1
         end
     end
     while res_made == 1 or res_made == 2 do
-        util.yield(20)
+        util.yield(100)
         local p_coo = players.get_position(pid)
         pos_difference = math.ceil(MISC.GET_DISTANCE_BETWEEN_COORDS(p_coo.x, p_coo.y, p_coo.z, entry_coo.x, entry_coo.y, entry_coo.z))
         if pos_difference <= 20 and res_made == 1 then
