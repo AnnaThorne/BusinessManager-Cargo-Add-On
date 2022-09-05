@@ -158,7 +158,7 @@ end
 
 function refill_crates()
 	menu.trigger_commands("tptocargowarehouse")
-	util.yield(3700+*speed_res)
+	util.yield(3700+speed_res)
 	tp1()
 	util.yield(150*speed_res)
 	PAD._SET_CONTROL_NORMAL(0, 51, 1)
