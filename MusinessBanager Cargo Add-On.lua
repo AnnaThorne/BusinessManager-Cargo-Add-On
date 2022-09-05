@@ -11,7 +11,7 @@
 --]]
 
 util.require_natives(1660775568)
-local localVer = 1.43
+local localVer = 1.44
 local mb_version = "0.3.2"
 local speed_sell = 1.2
 local speed_res = 2.0
@@ -23,7 +23,7 @@ local response = false
 async_http.init("raw.githubusercontent.com", "/akatozi/BusinessManager-Cargo-Add-On/main/Version", function(output)
     currentVer = tonumber(output)
     response = true
-    if localVer ~= currentVer then
+    if localVer < currentVer then
         util.toast("New BusinessManager Cargo Add-On version is available !")
         menu.action(menu.my_root(), "Update script", {}, "", function()
             async_http.init('raw.githubusercontent.com','/akatozi/BusinessManager-Cargo-Add-On/main/MusinessBanager Cargo Add-On.lua',function(a)
@@ -76,12 +76,7 @@ end)
 
 menu.divider(settings_menu, "Remove settings")
 menu.action(settings_menu,'Default settings', {""}, 'Remove optimised settings', function()
-	menu.trigger_commands("anticrashcamera off") 
-	menu.trigger_commands("nophonespam off")
-	menu.trigger_commands("potatomode off")
-	menu.trigger_commands("nosky off")
-	menu.trigger_commands("spoofsession off")
-	memory.write_float(memory.script_global(262145 + 1), 1)
+	default_settings()
 end)
 
 menu.divider(settings_menu, "Other Stuff")
@@ -94,8 +89,11 @@ moneyMultiplier = menu.toggle(settings_menu, 'Remove XP Gain', {""}, 'Dont earn 
 end)
 
 menu.action(settings_menu,'Restart the game', {""}, 'Use it if you are stuck in the warehouse screen.', function()
+	default_settings()
 	menu.trigger_commands("forcequittosp")
 end)
+
+menu.hyperlink(settings_menu, "Check Github : Tutorial", "https://github.com/akatozi/BusinessManager-Cargo-Add-On")
 
 menu.list_select(main_menu, 'Warehouse Size ', {""}, "Chose the size of your warehouse.", {"Large","Medium","Small"}, 1, function(warehouse_type)
 	if warehouse_type == 3 then
@@ -108,15 +106,15 @@ menu.list_select(main_menu, 'Warehouse Size ', {""}, "Chose the size of your war
 end)
 
 menu.divider(main_menu, "Automatic")
-menu.slider(main_menu, 'Sell Speed', {""}, "Lower values means faster loop.\nIf you get stuck in the warehouse menu, increase value.", 0, 5, 2, 1, function(sell_value)
-	speed_sell = 1 + 0.1*sell_value
-	if sell_value <= 1 then
+menu.list_select(main_menu, 'Sell Time ', {""}, "Chose speed of one loop.\nIf you get stuck in the warehouse menu, increase value.", {"1.7 sec","1.87 sec","2.04 sec","2.21 sec","2.38 sec","2.55"}, 3, function(sell_value)
+	speed_sell = 1 + 0.1*(sell_value-1)
+	if sell_value <= 2 then
 		util.toast("Low sell speed can get you stuck in the warehouse menu !\nDo it at your own risk.")
 	end
 end)
 
-menu.slider(main_menu, 'Resupply Speed', {""}, "Lower values means faster loop.\nIf you have issues with ressuply not working, increase value.", 0, 8, 4, 1, function(res_value)
-	speed_res = 1 + 0.2*res_value
+menu.list_select(main_menu, 'Resupply Time ', {""}, "Chose speed of one loop.\nIf you have issues with ressuply not working, increase value.", {"~8 sec","~9.6 sec","~11.2 sec","~12.8 sec","~14.4 sec"}, 2, function(res_value)
+	speed_res = 1 + 0.1*(res_value-1)
 	if res_value <= 3 then
 		util.toast("Low resupply speed can make you miss the resupply !\nDo it at your own risk.")
 	end
@@ -229,8 +227,13 @@ function format_int(number) -- Credits to Bart Kiers from stackoverflow
   return minus .. int:reverse():gsub("^,", "") .. fraction
 end
 
-function SET_FLOAT_GLOBAL(Global, Value)
-            memory.write_float(memory.script_global(Global), Value)
-        end
+function default_settings()
+	menu.trigger_commands("anticrashcamera off") 
+	menu.trigger_commands("nophonespam off")
+	menu.trigger_commands("potatomode off")
+	menu.trigger_commands("nosky off")
+	menu.trigger_commands("spoofsession off")
+	memory.write_float(memory.script_global(262145 + 1), 1)
+end
 
 util.keep_running()
